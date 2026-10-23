@@ -55,6 +55,9 @@
          brighter, worked out on the TV with Malaysia's JAKIM method. Needs prayer_lat and prayer_lon in the
          theme's config.json; without them the line stays hidden. -->
     <bool name="prayer_times">false</bool>
+    <!-- With prayer_times: play azan.mp3 (azan_subuh.mp3 for Subuh, when there) from the theme at each prayer
+         time while Home or the screensaver shows. Over other apps a card says the time has come, silently. -->
+    <bool name="azan">false</bool>
     <!-- Optional VPN app the network pill opens (hold the pill for Wi-Fi settings), e.g. the package of the
          VPN you use. Empty: the pill opens Wi-Fi settings. The green VPN badge shows for any VPN either way;
          with an app set here, a red "VPN off" badge also shows while no VPN is up. -->

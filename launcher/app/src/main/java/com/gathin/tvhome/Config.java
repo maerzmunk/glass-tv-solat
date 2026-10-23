@@ -47,6 +47,8 @@ final class Config {
     final boolean prayerTimes;
     final double prayerLat;
     final double prayerLon;
+    /** Play the theme's azan.mp3 at each prayer time while Home or the screensaver shows (azan). */
+    final boolean azan;
     final boolean moduleCards;
     /** Calmer motion for weak GPUs (config.xml, reduced_motion): stiff spring, short fades, no replay. */
     final boolean reducedMotion;
@@ -74,7 +76,7 @@ final class Config {
     private Config(List<String> dockApps, List<String> hiddenApps, String liveTvPackage, String liveTvAction,
                    String sourcePanelService, String sourcePanelAction, String inputAction,
                    int columns, int rowsBelowDock,
-                   boolean shamsiDate, boolean prayerTimes, double prayerLat, double prayerLon,
+                   boolean shamsiDate, boolean prayerTimes, double prayerLat, double prayerLon, boolean azan,
                    boolean moduleCards, boolean reducedMotion, String vpnApp,
                    boolean showHomeSettingsShortcut, boolean showNetworkPill, boolean showLiveTv,
                    int backgroundColor,
@@ -93,6 +95,7 @@ final class Config {
         this.prayerTimes = prayerTimes;
         this.prayerLat = prayerLat;
         this.prayerLon = prayerLon;
+        this.azan = azan;
         this.moduleCards = moduleCards;
         this.reducedMotion = reducedMotion;
         this.vpnApp = vpnApp;
@@ -127,6 +130,7 @@ final class Config {
         boolean shamsi = res.getBoolean(R.bool.shamsi_date);
         boolean prayer = res.getBoolean(R.bool.prayer_times);
         double prayerLat = Double.NaN, prayerLon = Double.NaN;
+        boolean azan = res.getBoolean(R.bool.azan);
         boolean moduleCards = res.getBoolean(R.bool.module_cards);
         boolean reducedMotion = res.getBoolean(R.bool.reduced_motion);
         String vpn = res.getString(R.string.vpn_app).trim();
@@ -154,6 +158,7 @@ final class Config {
             prayer = bool(json, "prayer_times", prayer);
             prayerLat = number(json, "prayer_lat", prayerLat, -66, 66);
             prayerLon = number(json, "prayer_lon", prayerLon, -180, 180);
+            azan = bool(json, "azan", azan);
             moduleCards = bool(json, "module_cards", moduleCards);
             reducedMotion = bool(json, "reduced_motion", reducedMotion);
             vpn = string(json, "vpn_app", vpn);
@@ -187,7 +192,7 @@ final class Config {
         return new Config(dock, hidden, liveTv, liveTvAction, panelService, panelAction, inputAction,
                 Math.max(1, columns), Math.max(0, rowsBelow), shamsi,
                 // Without a place there is nothing to work the times out for.
-                prayer && !Double.isNaN(prayerLat) && !Double.isNaN(prayerLon), prayerLat, prayerLon, moduleCards, reducedMotion,
+                prayer && !Double.isNaN(prayerLat) && !Double.isNaN(prayerLon), prayerLat, prayerLon, azan, moduleCards, reducedMotion,
                 vpn, homeSettings, networkPill, liveTvRow, background, wallpaper, wallpapers, wallpaperIntervalMs,
                 places, cacheCleanDays, applied);
     }

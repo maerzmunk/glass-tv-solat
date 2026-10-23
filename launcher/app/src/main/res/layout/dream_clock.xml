@@ -56,5 +56,18 @@
             android:letterSpacing="0.14"
             android:textAllCaps="true"
             android:includeFontPadding="false" />
+
+        <!-- The day's prayer times, shown when prayer_times is on; the next one lighter and bold. -->
+        <TextView
+            android:id="@+id/dreamPrayer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:textColor="#FF8B8C90"
+            android:fontFamily="@font/outfit"
+            android:fontVariationSettings="'wght' 400"
+            android:letterSpacing="0.02"
+            android:includeFontPadding="false"
+            android:visibility="gone" />
     </LinearLayout>
 </FrameLayout>

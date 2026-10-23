@@ -33,10 +33,13 @@ public class ClockDream extends DreamService {
     private final Random random = new Random();
     private View content;
     private ClockFace face;
+    private Config config;
+    private TextView prayer;
 
     private final Runnable tick = new Runnable() {
         @Override
         public void run() {
+            updatePrayer();
             moveClock();
             handler.postDelayed(this, MOVE_MS);
         }
@@ -59,6 +62,9 @@ public class ClockDream extends DreamService {
         String pattern = DateFormat.getBestDateTimePattern(Locale.getDefault(), "MMMdyyyy");
         date.setFormat12Hour(pattern);
         date.setFormat24Hour(pattern);
+        config = Config.load(this);
+        prayer = findViewById(R.id.dreamPrayer);
+        if (config.prayerTimes) prayer.setVisibility(View.VISIBLE);
         View screen = (View) content.getParent();
         screen.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> {
             if (b - t != ob - ot) size(b - t);
@@ -79,6 +85,8 @@ public class ClockDream extends DreamService {
         time.setTextSize(TypedValue.COMPLEX_UNIT_PX, 44f * u);
         amPm.setTextSize(TypedValue.COMPLEX_UNIT_PX, 14f * u);
         date.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17f);
+        prayer.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f);
+        ((LinearLayout.LayoutParams) prayer.getLayoutParams()).topMargin = Math.round(14f * u);
 
         // The tops of the digits sit 34 units under the rim, below the room the dial keeps for its shadow.
         LinearLayout.LayoutParams row = (LinearLayout.LayoutParams) findViewById(R.id.dreamTimeRow).getLayoutParams();
@@ -110,6 +118,9 @@ public class ClockDream extends DreamService {
             content.animate().alpha(1f).setDuration(1200).start();
         });
         face.start();
+        updatePrayer();
+        Azan.dreaming = true;
+        Azan.schedule(this, config);
         handler.postDelayed(tick, MOVE_MS);
     }
 
@@ -117,6 +128,8 @@ public class ClockDream extends DreamService {
     public void onDreamingStopped() {
         handler.removeCallbacks(tick);
         face.stop();
+        Azan.dreaming = false;
+        Azan.leftFront();
         super.onDreamingStopped();
     }
 
@@ -124,6 +137,12 @@ public class ClockDream extends DreamService {
     public void onDetachedFromWindow() {
         handler.removeCallbacks(tick);
         super.onDetachedFromWindow();
+    }
+
+    private void updatePrayer() {
+        if (config.prayerTimes) {
+            prayer.setText(PrayerLine.today(this, config.prayerLat, config.prayerLon, 0xFFD4D4D6));
+        }
     }
 
     private void moveClock() {

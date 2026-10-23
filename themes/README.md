@@ -32,7 +32,8 @@ is ignored, and a file that doesn't parse is ignored as a whole, so a theme can 
 | `rows_below_dock` | 0 to 3 | Grid rows left visible under the dock |
 | `shamsi_date` | bool | Show the Solar Hijri date above the Gregorian one |
 | `prayer_times` | bool | Show the day's prayer times (Subuh, Zohor, Asar, Maghrib, Isyak) under the clock, the next one brighter. Worked out on the TV with Malaysia's JAKIM method, no internet; within a minute of JAKIM's timetable. Needs `prayer_lat` and `prayer_lon` |
-| `prayer_lat`, `prayer_lon` | number | The place for `prayer_times`, in degrees (e.g. Kuala Lumpur `3.139`, `101.687`) |
+| `prayer_lat`, `prayer_lon` | number | The place for `prayer_times`, in degrees (e.g. Kuala Lumpur `3.139`, `101.687`); the line shows on the screensaver too |
+| `azan` | bool | With `prayer_times`: at each prayer time play the theme's `azan.mp3` (`azan_subuh.mp3` for Subuh, if there) while Home or the screensaver shows. Over any other app a card in the corner says the time has come, without sound. The card needs `appops set com.gathin.tvhome SYSTEM_ALERT_WINDOW allow` once, else a plain toast shows |
 | `module_cards` | bool | Look for module cards and ask about them (`true`); `false` turns the feature off |
 | `reduced_motion` | bool | Calmer motion for weak GPUs: stiff highlight spring, no tile overshoot, short fades, no entrance replay |
 | `vpn_app` | string | App the network pill opens when a VPN is configured; also shows a red "VPN off" badge while no VPN is up |

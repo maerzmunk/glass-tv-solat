@@ -1,4 +1,4 @@
-# Windows version of theme.sh: push a theme folder (config.json and optionally wallpaper.jpg) to the
+# Windows version of theme.sh: push a theme folder (config.json, optionally wallpaper.jpg and the azan sounds) to the
 # launcher on the TV and restart Home. See themes/README.md for the keys.
 #
 # Usage: tools\theme.ps1 -TvHost 192.168.1.50 themes\aurora
@@ -21,7 +21,7 @@ $pkg = 'com.gathin.tvhome'
 $dir = "/sdcard/Android/data/$pkg/files"
 
 if ($Reset) {
-    & $py -I tv.py "rm -f $dir/config.json $dir/wallpaper.jpg; am force-stop $pkg; am start -n $pkg/.MainActivity >/dev/null; echo reset"
+    & $py -I tv.py "rm -f $dir/config.json $dir/wallpaper.jpg $dir/azan.mp3 $dir/azan_subuh.mp3; am force-stop $pkg; am start -n $pkg/.MainActivity >/dev/null; echo reset"
     exit 0
 }
 if (-not $Theme) { throw 'usage: theme.ps1 <theme folder> | -Reset' }
@@ -33,5 +33,10 @@ try { Get-Content $config -Raw | ConvertFrom-Json | Out-Null } catch { throw "$c
 & $py -I tv.py --push $config "$dir/config.json"
 $wall = Join-Path $Theme 'wallpaper.jpg'
 if (Test-Path $wall) { & $py -I b64push.py $wall "$dir/wallpaper.jpg" } else { & $py -I tv.py "rm -f $dir/wallpaper.jpg" | Out-Null }
+# The azan sounds (themes\README.md, azan): pushed when the theme has them, removed when it does not.
+foreach ($f in 'azan.mp3', 'azan_subuh.mp3') {
+    $sound = Join-Path $Theme $f
+    if (Test-Path $sound) { & $py -I b64push.py $sound "$dir/$f" | Select-Object -Last 1 } else { & $py -I tv.py "rm -f $dir/$f" | Out-Null }
+}
 & $py -I tv.py "am force-stop $pkg; am start -n $pkg/.MainActivity >/dev/null; echo applied"
 Write-Host "Theme $(Split-Path $Theme -Leaf) is on the TV. Undo with: tools\theme.ps1 -TvHost $TvHost -Reset"

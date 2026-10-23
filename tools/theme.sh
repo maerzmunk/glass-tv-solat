@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Push a theme (a folder with config.json and optionally wallpaper.jpg) to the launcher on the TV and
-# restart Home so it picks it up. The launcher reads the files from its external files directory and
+# Push a theme (a folder with config.json and optionally wallpaper.jpg and the azan sounds) to the
+# launcher on the TV and restart Home so it picks it up. The launcher reads the files from its external files directory and
 # overlays config.json on its built-in config.xml; see themes/README.md for the keys.
 #
 # Usage: TV_HOST=192.168.1.50 tools/theme.sh themes/aurora
@@ -20,7 +20,7 @@ DIR=/sdcard/Android/data/$PKG/files
 tv() { "$PY" -I tv.py "$@"; }
 
 if [ "${1:-}" = --reset ]; then
-  tv "rm -rf $DIR/config.json $DIR/wallpaper.jpg $DIR/wallpapers; am force-stop $PKG; am start -n $PKG/.MainActivity >/dev/null; echo reset" | tail -n 1
+  tv "rm -rf $DIR/config.json $DIR/wallpaper.jpg $DIR/wallpapers $DIR/azan.mp3 $DIR/azan_subuh.mp3; am force-stop $PKG; am start -n $PKG/.MainActivity >/dev/null; echo reset" | tail -n 1
   exit 0
 fi
 THEME="${THEME_ARG:?usage: theme.sh <theme folder> | --reset}"
@@ -44,5 +44,13 @@ if [ -d "$THEME/wallpapers" ]; then
     "$PY" -I b64push.py "$f" "$DIR/wallpapers/$(basename "$f")" | tail -n 1
   done
 fi
+# The azan sounds (themes/README.md, azan): pushed when the theme has them, removed when it does not.
+for f in azan.mp3 azan_subuh.mp3; do
+  if [ -f "$THEME/$f" ]; then
+    "$PY" -I b64push.py "$THEME/$f" "$DIR/$f" | tail -n 1
+  else
+    tv "rm -f $DIR/$f" >/dev/null
+  fi
+done
 tv "am force-stop $PKG; am start -n $PKG/.MainActivity >/dev/null; echo applied" | tail -n 1
 echo "Theme $(basename "$THEME") is on the TV. Undo with: tools/theme.sh --reset"
