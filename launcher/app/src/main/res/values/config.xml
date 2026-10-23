@@ -51,6 +51,10 @@
     <!-- Show the Solar Hijri (Shamsi) date used in Iran and Afghanistan, e.g. "27 Mehr 1405", above the
          Gregorian date. -->
     <bool name="shamsi_date">false</bool>
+    <!-- Show the day's five prayer times (Subuh, Zohor, Asar, Maghrib, Isyak) under the clock, the next one
+         brighter, worked out on the TV with Malaysia's JAKIM method. Needs prayer_lat and prayer_lon in the
+         theme's config.json; without them the line stays hidden. -->
+    <bool name="prayer_times">false</bool>
     <!-- Optional VPN app the network pill opens (hold the pill for Wi-Fi settings), e.g. the package of the
          VPN you use. Empty: the pill opens Wi-Fi settings. The green VPN badge shows for any VPN either way;
          with an app set here, a red "VPN off" badge also shows while no VPN is up. -->

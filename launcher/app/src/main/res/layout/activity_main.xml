@@ -180,6 +180,24 @@
                         </LinearLayout>
                     </FrameLayout>
                 </LinearLayout>
+
+                <!-- The day's prayer times ("Subuh 5:49  Zohor 13:01 …"), shown when prayer_times is on; the
+                     next one is brighter and heavier (set in code). -->
+                <TextView
+                    android:id="@+id/prayerTimes"
+                    android:gravity="left"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    android:textColor="#A6FFFFFF"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/outfit"
+                    android:fontVariationSettings="'wght' 400"
+                    android:letterSpacing="0.02"
+                    android:includeFontPadding="false"
+                    android:visibility="gone" />
             </LinearLayout>
 
             <LinearLayout

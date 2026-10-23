@@ -43,6 +43,10 @@ final class Config {
     final int columns;
     final int rowsBelowDock;
     final boolean shamsiDate;
+    /** The day's prayer times under the clock (prayer_times), for the place at prayerLat, prayerLon. */
+    final boolean prayerTimes;
+    final double prayerLat;
+    final double prayerLon;
     final boolean moduleCards;
     /** Calmer motion for weak GPUs (config.xml, reduced_motion): stiff spring, short fades, no replay. */
     final boolean reducedMotion;
@@ -70,7 +74,8 @@ final class Config {
     private Config(List<String> dockApps, List<String> hiddenApps, String liveTvPackage, String liveTvAction,
                    String sourcePanelService, String sourcePanelAction, String inputAction,
                    int columns, int rowsBelowDock,
-                   boolean shamsiDate, boolean moduleCards, boolean reducedMotion, String vpnApp,
+                   boolean shamsiDate, boolean prayerTimes, double prayerLat, double prayerLon,
+                   boolean moduleCards, boolean reducedMotion, String vpnApp,
                    boolean showHomeSettingsShortcut, boolean showNetworkPill, boolean showLiveTv,
                    int backgroundColor,
                    File wallpaper, List<File> wallpapers, long wallpaperIntervalMs,
@@ -85,6 +90,9 @@ final class Config {
         this.columns = columns;
         this.rowsBelowDock = rowsBelowDock;
         this.shamsiDate = shamsiDate;
+        this.prayerTimes = prayerTimes;
+        this.prayerLat = prayerLat;
+        this.prayerLon = prayerLon;
         this.moduleCards = moduleCards;
         this.reducedMotion = reducedMotion;
         this.vpnApp = vpnApp;
@@ -117,6 +125,8 @@ final class Config {
         int columns = res.getInteger(R.integer.columns);
         int rowsBelow = res.getInteger(R.integer.rows_below_dock);
         boolean shamsi = res.getBoolean(R.bool.shamsi_date);
+        boolean prayer = res.getBoolean(R.bool.prayer_times);
+        double prayerLat = Double.NaN, prayerLon = Double.NaN;
         boolean moduleCards = res.getBoolean(R.bool.module_cards);
         boolean reducedMotion = res.getBoolean(R.bool.reduced_motion);
         String vpn = res.getString(R.string.vpn_app).trim();
@@ -141,6 +151,9 @@ final class Config {
             columns = integer(json, "columns", columns, 1, 8);
             rowsBelow = integer(json, "rows_below_dock", rowsBelow, 0, 3);
             shamsi = bool(json, "shamsi_date", shamsi);
+            prayer = bool(json, "prayer_times", prayer);
+            prayerLat = number(json, "prayer_lat", prayerLat, -66, 66);
+            prayerLon = number(json, "prayer_lon", prayerLon, -180, 180);
             moduleCards = bool(json, "module_cards", moduleCards);
             reducedMotion = bool(json, "reduced_motion", reducedMotion);
             vpn = string(json, "vpn_app", vpn);
@@ -172,7 +185,9 @@ final class Config {
                 : CacheCleaner.DEFAULT_DAYS;
 
         return new Config(dock, hidden, liveTv, liveTvAction, panelService, panelAction, inputAction,
-                Math.max(1, columns), Math.max(0, rowsBelow), shamsi, moduleCards, reducedMotion,
+                Math.max(1, columns), Math.max(0, rowsBelow), shamsi,
+                // Without a place there is nothing to work the times out for.
+                prayer && !Double.isNaN(prayerLat) && !Double.isNaN(prayerLon), prayerLat, prayerLon, moduleCards, reducedMotion,
                 vpn, homeSettings, networkPill, liveTvRow, background, wallpaper, wallpapers, wallpaperIntervalMs,
                 places, cacheCleanDays, applied);
     }
@@ -212,6 +227,13 @@ final class Config {
         if (!(v instanceof Number)) return fallback;
         int i = ((Number) v).intValue();
         return i < min || i > max ? fallback : i;
+    }
+
+    private static double number(JSONObject o, String key, double fallback, double min, double max) {
+        Object v = o.opt(key);
+        if (!(v instanceof Number)) return fallback;
+        double d = ((Number) v).doubleValue();
+        return d < min || d > max ? fallback : d;
     }
 
     private static int color(JSONObject o, String key, int fallback) {
