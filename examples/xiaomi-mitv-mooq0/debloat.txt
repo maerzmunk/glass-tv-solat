@@ -64,6 +64,7 @@ com.google.android.play.games                   # Play Games
 # ---- Streaming apps not used (per owner's checklist) ----
 com.jio.web.androidtv                           # JioTV
 com.google.android.youtube.tvkids                # YouTube Kids
+com.amazon.amazonvideo.livingroom               # Prime Video
 
 # ---- Home-screen claimants replaced by launcher/ ----
 # The factory test app also declares the HOME intent, at the same priority as the new launcher.
@@ -76,14 +77,14 @@ com.google.android.leanbacklauncher
 com.google.android.leanbacklauncher.recommendations
 
 # ---- Optional, by choice (reported fine on the same firmware, #81); uncomment what you don't use ----
-# com.mitv.tvhome.mitvplus                      # Mi TV+ FAST channels
-# com.xiaomi.mitv.updateservice                 # firmware updates
+com.mitv.tvhome.mitvplus                      # Mi TV+ FAST channels
+com.xiaomi.mitv.updateservice                 # firmware updates
 # com.google.android.katniss                    # voice assistant (the mic button stops working)
 # com.google.android.apps.mediashell            # Chromecast built-in
 # com.mitv.milinkservice                        # Mi Cast
 # com.xiaomi.mitv.smartshare
 # com.xiaomi.wfdsinkhelperservice               # Miracast sink
-# com.google.android.videos                     # Play Movies & TV
-# com.google.android.youtube.tvmusic
+com.google.android.videos                     # Play Movies & TV
+com.google.android.youtube.tvmusic
 # com.xiaomi.mitv.mediaexplorer                 # USB media player
 # com.mitv.videoplayer                          # Mi video player
