@@ -681,6 +681,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         updatePrayerTimes();
         Azan.homeInFront = true;
         Azan.schedule(this, config);
+        PrayerPlace.refresh(this, config, this::onPrayerPlace);
         updateWifiLabel();
         updateInputsButton();
         startWallpaperRotation();
@@ -1479,6 +1480,18 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     /** Today's five times on one line, the next one brighter and heavier; after Isyak, tomorrow's Subuh. */
     private void updatePrayerTimes() {
         if (prayer) prayerLine.setText(PrayerLine.today(this, prayerLat, prayerLon, Color.WHITE));
+    }
+
+    /** The TV found itself somewhere new (prayer_auto): the times and the next azan follow. */
+    private void onPrayerPlace(double lat, double lon) {
+        if (isDestroyed()) return;
+        prayer = true;
+        prayerLat = lat;
+        prayerLon = lon;
+        prayerLine.setVisibility(View.VISIBLE);
+        updatePrayerTimes();
+        config = Config.load(this);
+        Azan.schedule(this, config);
     }
 
     /** Shows the Wi-Fi network name on the button when we can read it, otherwise the connection type. */

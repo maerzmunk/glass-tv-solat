@@ -31,8 +31,9 @@ is ignored, and a file that doesn't parse is ignored as a whole, so a theme can 
 | `columns` | 1 to 8 | Tiles per row; tiles shrink to fit from 5 up |
 | `rows_below_dock` | 0 to 3 | Grid rows left visible under the dock |
 | `shamsi_date` | bool | Show the Solar Hijri date above the Gregorian one |
-| `prayer_times` | bool | Show the day's prayer times (Subuh, Zohor, Asar, Maghrib, Isyak) under the clock, the next one brighter. Worked out on the TV with Malaysia's JAKIM method, no internet; within a minute of JAKIM's timetable. Needs `prayer_lat` and `prayer_lon` |
+| `prayer_times` | bool | Show the day's prayer times (Subuh, Zohor, Asar, Maghrib, Isyak) under the clock, the next one brighter. Worked out on the TV with Malaysia's JAKIM method, no internet; within a minute of JAKIM's timetable. Needs `prayer_lat` and `prayer_lon`, or `prayer_auto` |
 | `prayer_lat`, `prayer_lon` | number | The place for `prayer_times`, in degrees (e.g. Kuala Lumpur `3.139`, `101.687`); the line shows on the screensaver too |
+| `prayer_auto` | bool | With `prayer_times`: follow the TV's own network location (Android's Wi-Fi based location; TVs have no GPS), asked at most twice a day when Home comes up and kept rounded to about a kilometre. For a stick that moves between homes. `prayer_lat`/`prayer_lon` stay as the place until the TV has found one, and whenever it cannot (location off in Settings, or the location permission not granted: `pm grant com.gathin.tvhome android.permission.ACCESS_FINE_LOCATION`, which `build-and-install` does) |
 | `azan` | bool | With `prayer_times`: at each prayer time play the theme's `azan.mp3` (`azan_subuh.mp3` for Subuh, if there) while Home or the screensaver shows. Over any other app a card in the corner says the time has come, without sound. The card needs `appops set com.gathin.tvhome SYSTEM_ALERT_WINDOW allow` once, else a plain toast shows |
 | `module_cards` | bool | Look for module cards and ask about them (`true`); `false` turns the feature off |
 | `reduced_motion` | bool | Calmer motion for weak GPUs: stiff highlight spring, no tile overshoot, short fades, no entrance replay |
