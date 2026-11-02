@@ -1,0 +1,40 @@
+name: Build stick APK
+
+# Builds the launcher on GitHub's servers (where the local loopback bug does not
+# exist) and publishes the APK as a downloadable release asset. Temporary helper
+# for setting up the Mi TV Stick; safe to delete this branch afterwards.
+
+on:
+  push:
+    branches: [stick-apk-build]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build and publish APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Build release APK
+        working-directory: launcher
+        run: ./gradlew --no-daemon assembleRelease
+
+      - name: Publish APK to the stick-build release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp launcher/app/build/outputs/apk/release/app-release.apk glass-tv-waktu-solat.apk
+          gh release delete stick-build --yes --cleanup-tag || true
+          gh release create stick-build glass-tv-waktu-solat.apk \
+            --target "$GITHUB_SHA" \
+            --title "Glass TV (waktu solat) APK" \
+            --notes "Auto build from the stick-apk-build branch."
