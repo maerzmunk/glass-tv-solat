@@ -26,7 +26,7 @@ jobs:
 
       - name: Build release APK
         working-directory: launcher
-        run: ./gradlew --no-daemon assembleRelease
+        run: ./gradlew --no-daemon testReleaseUnitTest assembleRelease
 
       - name: Publish APK to the stick-build release
         env:
