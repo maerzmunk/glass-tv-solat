@@ -132,7 +132,7 @@ final class Config {
         File[] media = ctx.getExternalMediaDirs();
         File m = media.length > 0 ? media[0] : null;
         if (m != null && new File(m, FILE_NAME).isFile()) {
-            // The places pictures land here too; keep them out of gallery apps.
+            // Keep the theme's pictures and azan sounds out of gallery and music apps.
             File noMedia = new File(m, ".nomedia");
             try {
                 if (!noMedia.exists() && !noMedia.createNewFile()) Log.w(TAG, "cannot create " + noMedia);
