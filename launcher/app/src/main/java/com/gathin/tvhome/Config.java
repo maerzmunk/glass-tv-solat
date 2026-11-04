@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.util.Log;
+import android.view.KeyEvent;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -15,7 +16,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The launcher's settings: the values in res/values/config.xml, with an optional overlay read from
@@ -72,6 +75,8 @@ final class Config {
     final boolean places;
     /** Days between clearing the TV's app caches (see CacheCleaner); 0 never does. */
     final int cacheCleanDays;
+    /** Remote buttons that open an app (key_apps), keycode to package; HomeKeyService acts on them. */
+    final Map<Integer, String> keyApps;
     /** Whether the overlay file was present and parsed. */
     final boolean overlayApplied;
 
@@ -84,7 +89,7 @@ final class Config {
                    boolean showHomeSettingsShortcut, boolean showNetworkPill, boolean showLiveTv,
                    int backgroundColor,
                    File wallpaper, List<File> wallpapers, long wallpaperIntervalMs,
-                   boolean places, int cacheCleanDays, boolean overlayApplied) {
+                   boolean places, int cacheCleanDays, Map<Integer, String> keyApps, boolean overlayApplied) {
         this.dockApps = Collections.unmodifiableList(dockApps);
         this.hiddenApps = Collections.unmodifiableList(hiddenApps);
         this.liveTvPackage = liveTvPackage;
@@ -112,6 +117,7 @@ final class Config {
         this.wallpaperIntervalMs = wallpaperIntervalMs;
         this.places = places;
         this.cacheCleanDays = cacheCleanDays;
+        this.keyApps = Collections.unmodifiableMap(keyApps);
         this.overlayApplied = overlayApplied;
     }
 
@@ -227,7 +233,7 @@ final class Config {
                 prayer && !Double.isNaN(prayerLat) && !Double.isNaN(prayerLon), prayerLat, prayerLon,
                 prayer && prayerAuto, azan, moduleCards, reducedMotion,
                 vpn, homeSettings, networkPill, liveTvRow, background, wallpaper, wallpapers, wallpaperIntervalMs,
-                places, cacheCleanDays, applied);
+                places, cacheCleanDays, keyApps(json), applied);
     }
 
     /** Reads and parses the overlay; any problem means "no overlay", never a crash on the home screen. */
@@ -293,6 +299,24 @@ final class Config {
         for (int i = 0; i < a.length(); i++) {
             Object item = a.opt(i);
             if (item instanceof String && !((String) item).trim().isEmpty()) out.add(((String) item).trim());
+        }
+        return out;
+    }
+
+    /** "key_apps": {"BUTTON_16": "com.google.android.youtube.tv"}: keycode name (or number) to package. */
+    private static Map<Integer, String> keyApps(JSONObject o) {
+        Map<Integer, String> out = new HashMap<>();
+        JSONObject map = o != null ? o.optJSONObject("key_apps") : null;
+        if (map == null) return out;
+        for (java.util.Iterator<String> it = map.keys(); it.hasNext(); ) {
+            String name = it.next();
+            String pkg = map.optString(name, "").trim();
+            int code = KeyEvent.keyCodeFromString(name.trim());
+            if (code == KeyEvent.KEYCODE_UNKNOWN || pkg.isEmpty()) {
+                Log.w(TAG, "key_apps: ignoring " + name);
+                continue;
+            }
+            out.put(code, pkg);
         }
         return out;
     }
