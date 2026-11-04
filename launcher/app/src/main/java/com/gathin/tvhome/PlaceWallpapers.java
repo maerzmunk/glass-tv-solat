@@ -57,7 +57,9 @@ final class PlaceWallpapers {
     }
 
     static File dir(Context ctx) {
-        File base = Config.dir(ctx);
+        // Always the app's own files folder, even where the theme lives in the media folder (Config.dir):
+        // nothing but the launcher reads these, and the media folder refuses the folder swap in refresh.
+        File base = ctx.getExternalFilesDir(null);
         return base != null ? new File(base, DIR) : null;
     }
 

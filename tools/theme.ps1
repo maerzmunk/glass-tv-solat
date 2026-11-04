@@ -19,6 +19,9 @@ $py = 'venv\Scripts\python.exe'
 if (-not (Test-Path $py)) { throw 'run: python -m venv tools\venv; tools\venv\Scripts\python.exe -m pip install -r tools\requirements.txt' }
 $pkg = 'com.gathin.tvhome'
 $dir = "/sdcard/Android/data/$pkg/files"
+# Restart Home so it reads the theme. Android 11 also switches off a force-stopped app's accessibility
+# services (HomeKeyService, InputKeyService), so they are switched back on as they were.
+$restart = 's=$(settings get secure enabled_accessibility_services); am force-stop ' + $pkg + '; am start -n ' + $pkg + '/.MainActivity >/dev/null; case "$s" in *' + $pkg + '*) settings put secure enabled_accessibility_services "$s"; settings put secure accessibility_enabled 1 ;; esac'
 # Some Android 11+ firmwares (Xiaomi Mi Box S 2nd gen) keep adb out of Android/data; the launcher then
 # reads its theme from its media folder, which adb can write (Config.dir).
 $probe = & $py -I tv.py "mkdir -p $dir 2>/dev/null; touch $dir/.probe 2>/dev/null && rm $dir/.probe && echo writable"
@@ -28,7 +31,7 @@ if (-not ($probe -match 'writable')) {
 }
 
 if ($Reset) {
-    & $py -I tv.py "rm -f $dir/config.json $dir/wallpaper.jpg $dir/azan.mp3 $dir/azan_subuh.mp3; am force-stop $pkg; am start -n $pkg/.MainActivity >/dev/null; echo reset"
+    & $py -I tv.py "rm -f $dir/config.json $dir/wallpaper.jpg $dir/azan.mp3 $dir/azan_subuh.mp3; $restart; echo reset"
     exit 0
 }
 if (-not $Theme) { throw 'usage: theme.ps1 <theme folder> | -Reset' }
@@ -45,5 +48,5 @@ foreach ($f in 'azan.mp3', 'azan_subuh.mp3') {
     $sound = Join-Path $Theme $f
     if (Test-Path $sound) { & $py -I b64push.py $sound "$dir/$f" | Select-Object -Last 1 } else { & $py -I tv.py "rm -f $dir/$f" | Out-Null }
 }
-& $py -I tv.py "am force-stop $pkg; am start -n $pkg/.MainActivity >/dev/null; echo applied"
+& $py -I tv.py "$restart; echo applied"
 Write-Host "Theme $(Split-Path $Theme -Leaf) is on the TV. Undo with: tools\theme.ps1 -TvHost $TvHost -Reset"
