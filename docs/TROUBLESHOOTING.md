@@ -144,7 +144,9 @@ fails on purpose and the rollback is printed instead of run.
 - **The helper is switched off after `am force-stop com.gathin.tvhome`**, seen on the Xiaomi Mi Box S 2nd
   gen (Android 11): `dumpsys accessibility` lists it under `Crashed services` and
   `enabled_accessibility_services` reads `null`. `tools/theme.sh` and `theme.ps1` force-stop Home to load a
-  theme, so they now put the list back as it was; after any other force-stop, enable it again.
+  theme, so they now clear the list and write it back as it was, which makes Android bind it again
+  (writing it back alone leaves it under `Crashed services`). After any other force-stop, do the same:
+  `settings delete secure enabled_accessibility_services`, wait a moment, then put it back.
 
 The optional `HomeKeyService` and `InputKeyService` only filter remote keys once Android has bound to
 them. The installer's `enabled` message means the setting was written, not that the service is bound.

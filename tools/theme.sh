@@ -19,8 +19,9 @@ PKG=com.gathin.tvhome
 DIR=/sdcard/Android/data/$PKG/files
 tv() { "$PY" -I tv.py "$@"; }
 # Restart Home so it reads the theme. Android 11 also switches off a force-stopped app's accessibility
-# services (HomeKeyService, InputKeyService), so they are switched back on as they were.
-RESTART='s=$(settings get secure enabled_accessibility_services); am force-stop '"$PKG"'; am start -n '"$PKG"'/.MainActivity >/dev/null; case "$s" in *'"$PKG"'*) settings put secure enabled_accessibility_services "$s"; settings put secure accessibility_enabled 1 ;; esac'
+# services (HomeKeyService, InputKeyService) and marks them crashed; clearing the list before writing it
+# back makes Android bind them again.
+RESTART='s=$(settings get secure enabled_accessibility_services); am force-stop '"$PKG"'; am start -n '"$PKG"'/.MainActivity >/dev/null; case "$s" in *'"$PKG"'*) settings delete secure enabled_accessibility_services; settings put secure accessibility_enabled 0; sleep 2; settings put secure enabled_accessibility_services "$s"; settings put secure accessibility_enabled 1 ;; esac'
 # Some Android 11+ firmwares (Xiaomi Mi Box S 2nd gen) keep adb out of Android/data; the launcher then
 # reads its theme from its media folder, which adb can write (Config.dir).
 if ! tv "mkdir -p $DIR 2>/dev/null; touch $DIR/.probe 2>/dev/null && rm $DIR/.probe && echo writable" | grep -q writable; then

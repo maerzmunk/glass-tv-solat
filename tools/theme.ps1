@@ -20,8 +20,9 @@ if (-not (Test-Path $py)) { throw 'run: python -m venv tools\venv; tools\venv\Sc
 $pkg = 'com.gathin.tvhome'
 $dir = "/sdcard/Android/data/$pkg/files"
 # Restart Home so it reads the theme. Android 11 also switches off a force-stopped app's accessibility
-# services (HomeKeyService, InputKeyService), so they are switched back on as they were.
-$restart = 's=$(settings get secure enabled_accessibility_services); am force-stop ' + $pkg + '; am start -n ' + $pkg + '/.MainActivity >/dev/null; case "$s" in *' + $pkg + '*) settings put secure enabled_accessibility_services "$s"; settings put secure accessibility_enabled 1 ;; esac'
+# services (HomeKeyService, InputKeyService) and marks them crashed; clearing the list before writing it
+# back makes Android bind them again.
+$restart = 's=$(settings get secure enabled_accessibility_services); am force-stop ' + $pkg + '; am start -n ' + $pkg + '/.MainActivity >/dev/null; case "$s" in *' + $pkg + '*) settings delete secure enabled_accessibility_services; settings put secure accessibility_enabled 0; sleep 2; settings put secure enabled_accessibility_services "$s"; settings put secure accessibility_enabled 1 ;; esac'
 # Some Android 11+ firmwares (Xiaomi Mi Box S 2nd gen) keep adb out of Android/data; the launcher then
 # reads its theme from its media folder, which adb can write (Config.dir).
 $probe = & $py -I tv.py "mkdir -p $dir 2>/dev/null; touch $dir/.probe 2>/dev/null && rm $dir/.probe && echo writable"
