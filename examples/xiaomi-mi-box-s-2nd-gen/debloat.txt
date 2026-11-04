@@ -25,6 +25,13 @@
 # - The remote's shortcut buttons (Netflix, YouTube, Prime Video, Xiaomi TV+, Apps) all do nothing once
 #   launcherx is disabled. Prime Video and Xiaomi TV+ are disabled anyway; Netflix, YouTube and Apps were
 #   handled by launcherx, as on the Chromecast with Google TV (see that list for a Key Mapper remap).
+#   Glass TV can give them apps itself: "key_apps" in the theme (themes/README.md) with HomeKeyService on.
+#   This remote (Vendor_2717_Product_32b9.kl) sends YouTube = BUTTON_16, Netflix = BUTTON_6,
+#   Xiaomi TV+ = BUTTON_5. Its Home button sends HOME, so Home works without the HomeKeyService.
+# - A second box (firmware RTT0.211222.001.683, November 2026): adb gets "Permission denied" under
+#   Android/data, so themes go to /sdcard/Android/media/com.gathin.tvhome/ (tools/theme.sh and theme.ps1
+#   do that by themselves). Its time zone came set to Asia/Jakarta, an hour behind Malaysia; check
+#   `date` before relying on the prayer times. Wi-Fi did not drop when setupwraith was disabled.
 #
 # Kept on purpose: Google Assistant (katniss), Chromecast (mediashell), phone remote (tv.remote.service),
 # YouTube Music, Xiaomi USB media apps (mimusic2, mitv.gallery, mediaexplorer, mitv.videoplayer),
