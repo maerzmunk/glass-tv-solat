@@ -20,9 +20,9 @@ if (-not (Test-Path $py)) { throw 'run: python -m venv tools\venv; tools\venv\Sc
 $pkg = 'com.gathin.tvhome'
 $dir = "/sdcard/Android/data/$pkg/files"
 # Restart Home so it reads the theme. Android 11 also switches off a force-stopped app's accessibility
-# services (HomeKeyService, InputKeyService) and marks them crashed; clearing the list before writing it
-# back makes Android bind them again.
-$restart = 's=$(settings get secure enabled_accessibility_services); am force-stop ' + $pkg + '; am start -n ' + $pkg + '/.MainActivity >/dev/null; case "$s" in *' + $pkg + '*) settings delete secure enabled_accessibility_services; settings put secure accessibility_enabled 0; sleep 2; settings put secure enabled_accessibility_services "$s"; settings put secure accessibility_enabled 1 ;; esac'
+# services (HomeKeyService, InputKeyService) and marks them crashed. Clearing the list and writing it back
+# makes Android bind them again, but only some seconds after the force-stop, so it is retried until bound.
+$restart = 's=$(settings get secure enabled_accessibility_services); am force-stop ' + $pkg + '; am start -n ' + $pkg + '/.MainActivity >/dev/null; case $s in *' + $pkg + '*) for t in 1 2 3 4; do sleep 3; settings delete secure enabled_accessibility_services >/dev/null; settings put secure accessibility_enabled 0; sleep 2; settings put secure enabled_accessibility_services $s; settings put secure accessibility_enabled 1; sleep 3; dumpsys accessibility | grep -q Bound.services:.Service && break; done ;; esac'
 # Some Android 11+ firmwares (Xiaomi Mi Box S 2nd gen) keep adb out of Android/data; the launcher then
 # reads its theme from its media folder, which adb can write (Config.dir).
 $probe = & $py -I tv.py "mkdir -p $dir 2>/dev/null; touch $dir/.probe 2>/dev/null && rm $dir/.probe && echo writable"
