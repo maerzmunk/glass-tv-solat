@@ -43,6 +43,11 @@ fails on purpose and the rollback is printed instead of run.
 - **Chained `pm` commands** (`pm disable a; pm disable b`) may silently stop after the first. Run
   one per shell call; `--batch` does exactly that.
 - **Large pushes hang** through the Python client. Use `tools/b64push.py` for APKs.
+- **`Permission denied` under `/sdcard/Android/data/com.gathin.tvhome/files`** when pushing a theme or
+  touching `clean-now`, seen on the Xiaomi Mi Box S 2nd gen (Android 11): that firmware mounts
+  Android/data where adb cannot reach it. The launcher then reads its theme from its media folder,
+  `/sdcard/Android/media/com.gathin.tvhome/`, whenever a `config.json` is there; `tools/theme.sh` and
+  `theme.ps1` switch to it by themselves, and `clean-now` and `azan-test` go there too.
 - **`adb exec-out screencap -p` gives a broken PNG** on some MediaTek Xiaomi sets: the binary prints
   `Init wrapper sys mutex successful` on stdout first. Save on the TV and pull the file instead:
   `screencap -p /data/local/tmp/s.png`.

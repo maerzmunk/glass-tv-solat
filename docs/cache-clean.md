@@ -33,7 +33,9 @@ prompts it stops asking.
 
 - Change how often with `"cache_clean_days"` in the theme's `config.json` (1 to 90); `0` turns it off.
 - Clean right now, and show the prompt again: `tools/tv.py 'touch /sdcard/Android/data/com.gathin.tvhome/files/clean-now'`,
-  then press Home and wait 20 seconds.
+  then press Home and wait 20 seconds. On a TV whose Android/data adb cannot write (see
+  [Troubleshooting](TROUBLESHOOTING.md#working-on-the-tv)), the theme lives in
+  `/sdcard/Android/media/com.gathin.tvhome/` and `clean-now` goes there.
 - See the prompt again (to test it): also `touch .../files/new-key` before `clean-now`. Glass TV makes a new key,
   which the TV has not allowed yet.
 - Its log: `logcat -s TvHome.Clean`.

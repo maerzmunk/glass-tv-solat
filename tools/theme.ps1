@@ -19,6 +19,13 @@ $py = 'venv\Scripts\python.exe'
 if (-not (Test-Path $py)) { throw 'run: python -m venv tools\venv; tools\venv\Scripts\python.exe -m pip install -r tools\requirements.txt' }
 $pkg = 'com.gathin.tvhome'
 $dir = "/sdcard/Android/data/$pkg/files"
+# Some Android 11+ firmwares (Xiaomi Mi Box S 2nd gen) keep adb out of Android/data; the launcher then
+# reads its theme from its media folder, which adb can write (Config.dir).
+$probe = & $py -I tv.py "mkdir -p $dir 2>/dev/null; touch $dir/.probe 2>/dev/null && rm $dir/.probe && echo writable"
+if (-not ($probe -match 'writable')) {
+    $dir = "/sdcard/Android/media/$pkg"
+    Write-Host "Android/data is closed to adb on this TV; using $dir"
+}
 
 if ($Reset) {
     & $py -I tv.py "rm -f $dir/config.json $dir/wallpaper.jpg $dir/azan.mp3 $dir/azan_subuh.mp3; am force-stop $pkg; am start -n $pkg/.MainActivity >/dev/null; echo reset"
