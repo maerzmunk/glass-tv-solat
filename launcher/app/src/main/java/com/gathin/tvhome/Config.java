@@ -115,9 +115,27 @@ final class Config {
         this.overlayApplied = overlayApplied;
     }
 
-    /** The folder the theme tools push into; null when external storage is unavailable. */
+    /**
+     * The folder the theme tools push into; null when external storage is unavailable. Normally the
+     * external files directory, but some Android 11+ firmwares (Xiaomi Mi Box S 2nd gen) keep adb out of
+     * Android/data, so the tools push into the app's media folder instead
+     * ({@code /sdcard/Android/media/com.gathin.tvhome/}); a config.json there wins.
+     */
     static File dir(Context ctx) {
-        return ctx.getExternalFilesDir(null);
+        File files = ctx.getExternalFilesDir(null);
+        File[] media = ctx.getExternalMediaDirs();
+        File m = media.length > 0 ? media[0] : null;
+        if (m != null && new File(m, FILE_NAME).isFile()) {
+            // The places pictures land here too; keep them out of gallery apps.
+            File noMedia = new File(m, ".nomedia");
+            try {
+                if (!noMedia.exists() && !noMedia.createNewFile()) Log.w(TAG, "cannot create " + noMedia);
+            } catch (java.io.IOException e) {
+                Log.w(TAG, "cannot create " + noMedia + ": " + e.getMessage());
+            }
+            return m;
+        }
+        return files;
     }
 
     static Config load(Context ctx) {

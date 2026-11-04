@@ -18,6 +18,12 @@ export MSYS_NO_PATHCONV=1
 PKG=com.gathin.tvhome
 DIR=/sdcard/Android/data/$PKG/files
 tv() { "$PY" -I tv.py "$@"; }
+# Some Android 11+ firmwares (Xiaomi Mi Box S 2nd gen) keep adb out of Android/data; the launcher then
+# reads its theme from its media folder, which adb can write (Config.dir).
+if ! tv "mkdir -p $DIR 2>/dev/null; touch $DIR/.probe 2>/dev/null && rm $DIR/.probe && echo writable" | grep -q writable; then
+  DIR=/sdcard/Android/media/$PKG
+  echo "Android/data is closed to adb on this TV; using $DIR"
+fi
 
 if [ "${1:-}" = --reset ]; then
   tv "rm -rf $DIR/config.json $DIR/wallpaper.jpg $DIR/wallpapers $DIR/azan.mp3 $DIR/azan_subuh.mp3; am force-stop $PKG; am start -n $PKG/.MainActivity >/dev/null; echo reset" | tail -n 1
@@ -25,7 +31,7 @@ if [ "${1:-}" = --reset ]; then
 fi
 THEME="${THEME_ARG:?usage: theme.sh <theme folder> | --reset}"
 [ -f "$THEME/config.json" ] || { echo "no config.json in $THEME" >&2; exit 1; }
-python3 -c 'import json,sys; json.load(open(sys.argv[1]))' "$THEME/config.json" 2>/dev/null \
+"$PY" -I -c 'import json,sys; json.load(open(sys.argv[1]))' "$THEME/config.json" 2>/dev/null \
   || { echo "$THEME/config.json is not valid JSON" >&2; exit 1; }
 
 tv "mkdir -p $DIR" >/dev/null
