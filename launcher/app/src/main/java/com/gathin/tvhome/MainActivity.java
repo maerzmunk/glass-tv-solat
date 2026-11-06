@@ -689,6 +689,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         handler.removeCallbacks(cacheClean);
         handler.postDelayed(cacheClean, CacheCleaner.IDLE_MS);
         hiddenSinceResume = false;
+        KeyServices.keepOn(this);
     }
 
     /** Rebuilds the tiles (and the module cards), then puts focus back where it was. */
