@@ -35,15 +35,17 @@ public class HomeKeyService extends AccessibilityService {
         settingsScancodes = getResources().getIntArray(R.array.settings_key_scancodes);
     }
 
-    /** The app the theme gives this button (key_apps), or null. */
-    private String appFor(int keyCode) {
+    /** The app the theme gives this button (key_apps, by keycode or by "SCAN_n" scancode), or null. */
+    private String appFor(KeyEvent event) {
         File dir = Config.dir(this);
         long stamp = dir != null ? new File(dir, Config.FILE_NAME).lastModified() : 0;
         if (stamp != keyAppsStamp) {
             keyAppsStamp = stamp;
             keyApps = Config.load(this).keyApps;
         }
-        return keyApps.get(keyCode);
+        String pkg = keyApps.get(event.getKeyCode());
+        if (pkg == null && event.getScanCode() > 0) pkg = keyApps.get(-event.getScanCode());
+        return pkg;
     }
 
     private Intent launchIntent(String pkg) {
@@ -69,7 +71,7 @@ public class HomeKeyService extends AccessibilityService {
             return true;
         }
         // App buttons (Netflix, YouTube, Xiaomi TV+...) were the stock launcher's too: open the theme's app.
-        String pkg = appFor(event.getKeyCode());
+        String pkg = appFor(event);
         Intent app = pkg != null ? launchIntent(pkg) : null;
         if (app != null) {
             if (event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled()) {

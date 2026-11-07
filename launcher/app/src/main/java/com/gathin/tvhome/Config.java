@@ -303,15 +303,19 @@ final class Config {
         return out;
     }
 
-    /** "key_apps": {"BUTTON_16": "com.google.android.youtube.tv"}: keycode name (or number) to package. */
-    private static Map<Integer, String> keyApps(JSONObject o) {
+    /**
+     * "key_apps": {"BUTTON_16": "com.google.android.youtube.tv"}: keycode name (or number) to package.
+     * "SCAN_393" names a button by its scancode instead, for buttons the TV's key layout leaves unmapped
+     * (they arrive as KEYCODE_UNKNOWN); those are stored as the negative scancode, see {@link #keyFor}.
+     */
+    static Map<Integer, String> keyApps(JSONObject o) {
         Map<Integer, String> out = new HashMap<>();
         JSONObject map = o != null ? o.optJSONObject("key_apps") : null;
         if (map == null) return out;
         for (java.util.Iterator<String> it = map.keys(); it.hasNext(); ) {
             String name = it.next();
             String pkg = map.optString(name, "").trim();
-            int code = KeyEvent.keyCodeFromString(name.trim());
+            int code = keyFor(name.trim());
             if (code == KeyEvent.KEYCODE_UNKNOWN || pkg.isEmpty()) {
                 Log.w(TAG, "key_apps: ignoring " + name);
                 continue;
@@ -319,5 +323,18 @@ final class Config {
             out.put(code, pkg);
         }
         return out;
+    }
+
+    /** A key_apps name to its map key: the keycode, or minus the scancode for "SCAN_n"; KEYCODE_UNKNOWN if invalid. */
+    static int keyFor(String name) {
+        if (name.regionMatches(true, 0, "SCAN_", 0, 5)) {
+            try {
+                int scan = Integer.parseInt(name.substring(5));
+                return scan > 0 ? -scan : KeyEvent.KEYCODE_UNKNOWN;
+            } catch (NumberFormatException e) {
+                return KeyEvent.KEYCODE_UNKNOWN;
+            }
+        }
+        return KeyEvent.keyCodeFromString(name);
     }
 }
