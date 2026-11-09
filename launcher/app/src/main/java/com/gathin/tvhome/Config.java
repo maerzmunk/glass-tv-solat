@@ -325,6 +325,14 @@ final class Config {
         return out;
     }
 
+    /**
+     * The power button under res/raw/power_sleep.kcm. Only that layout sends STB_POWER with these scancodes,
+     * so a real set-top-box power key on another remote still passes through.
+     */
+    static boolean isSleepKey(int keyCode, int scanCode) {
+        return keyCode == KeyEvent.KEYCODE_STB_POWER && (scanCode == 116 || scanCode == 152);
+    }
+
     /** A key_apps name to its map key: the keycode, or minus the scancode for "SCAN_n"; KEYCODE_UNKNOWN if invalid. */
     static int keyFor(String name) {
         if (name.regionMatches(true, 0, "SCAN_", 0, 5)) {

@@ -1,0 +1,6 @@
+# Key layout overlay: the remote's power button arrives as STB_POWER instead of POWER, so the firmware's
+# power-off does not run. HomeKeyService puts the box to sleep on it. See docs/power-button-sleep.md.
+type OVERLAY
+
+map key 116 STB_POWER
+map key 152 STB_POWER

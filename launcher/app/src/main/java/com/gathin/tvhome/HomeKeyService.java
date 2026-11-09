@@ -63,6 +63,14 @@ public class HomeKeyService extends AccessibilityService {
 
     @Override
     protected boolean onKeyEvent(KeyEvent event) {
+        // Acts on the press, not the release: when this button wakes the box, Android swallows the press but
+        // lets the release through, and acting on that would put the box straight back to sleep.
+        if (Config.isSleepKey(event.getKeyCode(), event.getScanCode())) {
+            if (event.getAction() == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
+                performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN);
+            }
+            return true;
+        }
         // The stock launcher handled the remote's Settings button; with it disabled the button does nothing.
         if (isSettingsKey(event)) {
             if (event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled()) {
